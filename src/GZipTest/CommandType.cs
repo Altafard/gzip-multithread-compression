@@ -2,6 +2,7 @@
 {
     internal enum CommandType
     {
+        Unknown,
         Compress,
         Decompress
     }

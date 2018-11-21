@@ -11,20 +11,19 @@ namespace GZipTest
     {
         public static void Main(string[] args)
         {
+            if (args == null || args.Length != 3)
+            {
+                Help();
+                return;
+            }
+
             try
             {
-                if (args == null || args.Length != 3)
+                CommandType commandType;
+                if (TryParseCommandType(args[0], out commandType) == false)
                 {
                     Help();
                     return;
-                }
-
-                CommandType commandType;
-                switch (args[0])
-                {
-                    case "compress": commandType = CommandType.Compress; break;
-                    case "decompress": commandType = CommandType.Decompress; break;
-                    default: Help(); return;
                 }
 
                 using (IGZipHandler handler = CreateHandler(commandType, args[1], args[2]))
@@ -47,16 +46,22 @@ namespace GZipTest
             }
         }
 
-        private static void Help()
+        private static bool TryParseCommandType(string command, out CommandType type)
         {
-            string help = new StringBuilder()
-                .AppendLine("USAGE: GZipTest [command] [source] [destination]")
-                .AppendLine("where [command] is:")
-                .AppendLine("\tcompress\t: compress source file and save it in destination path")
-                .AppendLine("\tdecompress\t: decompress source file and save it in destination path")
-                .AppendLine("[source] and [destination]: paths to files")
-                .ToString();
-            Console.WriteLine(help);
+            type = CommandType.Unknown;
+            try
+            {
+                type = (CommandType)Enum.Parse(typeof(CommandType), command, true);
+                return true;
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         private static IGZipHandler CreateHandler(CommandType command, string src, string dest)
@@ -71,6 +76,18 @@ namespace GZipTest
                     return new DecompressionHandler(decompressionFactory);
                 default: return null;
             }
+        }
+
+        private static void Help()
+        {
+            string help = new StringBuilder()
+                .AppendLine("USAGE: GZipTest [command] [source] [destination]")
+                .AppendLine("where [command] is:")
+                .AppendLine("\tcompress\t: compress source file and save it in destination path")
+                .AppendLine("\tdecompress\t: decompress source file and save it in destination path")
+                .AppendLine("[source] and [destination]: paths to files")
+                .ToString();
+            Console.WriteLine(help);
         }
     }
 }
