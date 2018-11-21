@@ -23,7 +23,7 @@ namespace FileGenerator
 
             app.HelpOption("-? | -h | --help");
             app.VersionOption("-v | --version", () => $"Version {Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion}");
-            
+
             app.Command("generate", command =>
             {
                 command.FullName = "Command of the file generation";
@@ -43,12 +43,8 @@ namespace FileGenerator
                     {
                         size = DefaultFileSize;
                     }
-                    
-                    Console.WriteLine(@"Generating the file {0} with size of {1} bytes", path.Value, size);
 
                     await GenerateFile(path.Value, size);
-
-                    Console.WriteLine(@"Done");
 
                     return 0;
                 });
@@ -70,13 +66,16 @@ namespace FileGenerator
 
         private static async Task GenerateFile(string path, long size)
         {
+            Console.WriteLine(@"Generating the file {0} with size of {1} bytes", path, size);
+
             byte[] bytes = Encoding.UTF8.GetBytes(Resource.Text);
             using (FileStream fs = File.Open(path, FileMode.Create, FileAccess.Write))
             {
-                var step = 1;
-                int counter = step;
-                var divisor = 10;
+                Console.Write(@"Recorded ");
+                int left = Console.CursorLeft;
+                int top = Console.CursorTop;
 
+                long totalProgress = 0;
                 while (fs.Length != size)
                 {
                     int count = size - fs.Length < bytes.Length
@@ -84,17 +83,16 @@ namespace FileGenerator
                         : bytes.Length;
 
                     await fs.WriteAsync(bytes, 0, count);
+                    
+                    long progress = 100 * fs.Length / size;
+                    if (progress <= totalProgress) continue;
 
-                    if (fs.Length < counter * 1024 * 1024) continue;
-
-                    Console.WriteLine($@"Written {counter}MB...");
-                    counter += step;
-
-                    if (counter % divisor != 0) continue;
-
-                    step *= 10;
-                    divisor *= 10;
+                    Console.SetCursorPosition(left, top);
+                    Console.Write(@"{0}%", progress);
+                    totalProgress = progress;
                 }
+
+                Console.WriteLine();
             }
         }
     }
