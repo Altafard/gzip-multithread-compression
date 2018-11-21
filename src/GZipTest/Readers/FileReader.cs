@@ -5,7 +5,7 @@ namespace GZipTest.Readers
 {
     public class FileReader : IFileReader
     {
-        private const int DefaultBlockSize = 1024;
+        private const int DefaultBlockSize = 1024 * 1024; // 1MB
 
         private readonly Stream _fs;
         private readonly object _syncRoot = new object();
