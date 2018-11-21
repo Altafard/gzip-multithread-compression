@@ -25,8 +25,8 @@ namespace GZipTest.Handlers
             {
                 Events[@event] = new ManualResetEvent(false);
 
-                var thread = new Thread(Process) { Name = @event.ToString(), IsBackground = false };
-                thread.Start();
+                var thread = new Thread(Process) { IsBackground = false };
+                thread.Start(@event);
             }
 
             WaitHandle.WaitAll(Events);
@@ -35,7 +35,7 @@ namespace GZipTest.Handlers
         /// <summary>
         /// Process a GZip operation..
         /// </summary>
-        protected abstract void Process();
+        protected abstract void Process(object number);
 
         public virtual void Dispose()
         {

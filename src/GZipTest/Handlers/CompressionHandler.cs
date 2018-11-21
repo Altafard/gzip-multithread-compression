@@ -3,7 +3,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Threading;
 
 namespace GZipTest.Handlers
 {
@@ -14,9 +13,9 @@ namespace GZipTest.Handlers
         /// <summary>
         /// Compress.
         /// </summary>
-        protected override void Process()
+        protected override void Process(object number)
         {
-            int threadNumber = int.Parse(Thread.CurrentThread.Name);
+            var threadNumber = (int) number;
 
             Console.WriteLine("Thread {0} started compressing", threadNumber);
 
